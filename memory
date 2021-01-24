@@ -1,0 +1,24 @@
+    """MEMORY
+    :write(data, "BTC")
+    :BTC = read("BTC") """
+
+def write(data, name):
+    #ESCRIBIR        
+    fic = open(name, "w")
+    print(data, file=fic)
+    fic.close()
+    return 0
+
+def read(name):
+    #LEER
+    fic = open(name, "r")
+    lines1 = fic.readlines()
+    lines = lines1[0]
+    precio = float(lines[0:7])
+    #print(precio)
+    fic.close()
+    return precio
+
+    """MODO DE USO
+    :write(data, "BTC")
+    :BTC = read("BTC") """
