@@ -1,0 +1,34 @@
+import time
+import dateparser
+import pytz
+from datetime import datetime
+import urllib3
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import math
+
+def sma(a, n=3) :
+    ret = np.cumsum(a, dtype=float)
+    ret[n:] = ret[n:] - ret[:-n]
+    b = np.repeat(None, (n - 1))
+    return np.concatenate((b,ret[n - 1:] / n))
+
+
+def ema(s, n):
+    ema = []
+    j = 1
+    #get n sma first and calculate the next n period ema
+    sma = sum(s[:n]) / n
+    multiplier = 2 / float(1 + n)
+    ema.append(sma)
+    #EMA(current) = ( (Price(current) - EMA(prev) ) x Multiplier) + EMA(prev)
+    ema.append(( (s[n] - sma) * multiplier) + sma)
+    #now calculate the rest of the values
+    for i in s[n+1:]:
+        tmp = ( (i - ema[j]) * multiplier) + ema[j]
+        j = j + 1
+        ema.append(tmp)
+    b = []
+    b = np.repeat(None, (n-1))
+    return np.concatenate((b,ema), axis=None)
