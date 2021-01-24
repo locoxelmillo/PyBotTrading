@@ -1,4 +1,9 @@
-    """MEMORY
+import time
+import dateparser
+import pytz
+
+
+"""MEMORY
     :write(data, "BTC")
     :BTC = read("BTC") """
 
