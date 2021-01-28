@@ -59,3 +59,57 @@ def emawonone(s, n):
         ema.append(tmp)
     b = []    
     return np.concatenate((b,ema), axis=None)
+    
+    
+def exponentialmovingaverage(price, time, amq, amm, ams):
+    lastvalue = len(price) - 1
+    AMquick = ema(price, amq)
+    AMmedium = ema(price, amm)
+    AMslow = ema(price, ams)
+    x = np.asarray(time)
+    graphicator(x, price, AMslow, AMmedium, AMquick)  
+    
+    if (AMquick[lastvalue] > AMslow[lastvalue]):
+        status = True
+    else:
+        status = False
+    return status
+        
+
+def macd(price, time):
+    
+    #Creacion de las variables iniciales
+    lastvalue = len(price) - 1
+    PMEs = ema( price, 12)
+    PMEq = ema( price, 26)
+    MACD0 = []
+    MACD1 = []
+    Histograme = []
+    zero = np.zeros(len(price))
+    #Calculamos el MACD
+    for i in range(len(price)):
+        if i < 26:
+            MACD0.append(None)
+        elif i >= 26:
+            result = PMEs[i] - PMEq[i] 
+            MACD1.append(result)
+    #Calculamos la signal     
+    signal0 = ema(MACD1, 9)
+    #Ordenamos MACD y Signal
+    signal = np.concatenate((MACD0,signal0), axis=None)
+    MACD = np.concatenate((MACD0,MACD1), axis=None)
+    #Calculamos el histograma
+    for i in range(len(price)):
+        if (MACD[i]== None or signal[i]== None):
+            Histograme.append(None)
+        else:
+            result = MACD[i] - signal[i] 
+            Histograme.append(result)
+
+    x = np.asarray(time)
+    graphicator(x, MACD, signal, Histograme, zero)  
+    if (MACD[lastvalue] > signal[lastvalue]):
+        status = True
+    else:
+        status = False
+    return status
