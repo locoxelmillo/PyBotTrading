@@ -117,7 +117,7 @@ def macd(price, time):
 
 
 
-def emv(Highprice,Lowprice,Volume, Timestampop, divisor = 10000, mediamovil = 14, filtro = 0.4 ):
+def emv(Highprice,Lowprice,Volume, Timestampop, divider = 10000, movingaverage = 14, judge = 0.4 ):
     """Ease of movement (EMV) is an indicator used in technical analysis to relate an asset's 
     price change to its volume. Ease of Movement was developed by Richard W. Arms, Jr. and 
     highlights the relationship between volume and price changes and is particularly useful 
@@ -130,54 +130,54 @@ def emv(Highprice,Lowprice,Volume, Timestampop, divisor = 10000, mediamovil = 14
         Lowprice
         Volume
         Timestampop
-        divisor: Coeficiente de dision
-        mediamovil: Valor de la Media movil de estos valores
-        filtro: Filtro manual
+        divider
+        movingaverage
+        judge: judge manual
     
     """
-    # divisor = 10000
-    # mediamovil = 14
-    # filtro = 0.4
-    
+ 
     
     size = len(Highprice)
     distance = []
     box = []
     emv = []
     smaEMV0 = []
+    smaEMV1 = []
     smaEMV = []
-    acum = 0
-    sumatoria = 0
-    lineasup = []
-    luneainf = []
+    lineup = []
+    linedown = []
     
     for i in range(size):
         distance.append(((Highprice[i]+Lowprice[i])/2)-((Highprice[i-1]+Lowprice[i-1])/2))
         try: 
-            box.append((Volume[i]/divisor)/ ((Highprice[i]-Lowprice[i])))
+            box.append((Volume[i]/divider)/ ((Highprice[i]-Lowprice[i])))
             emv.append(-(1-(distance[i]/box[i])))
-        except ValueError:
+        except ZeroDivisionError:
             return emv.append(0)
     emv.pop(0)
-    smaEMV0 = sma(emv, mediamovil)
+    smaEMV0 = sma(emv, movingaverage)
+    smaEMV1 = smawonone(emv, movingaverage)
     
-    # b =  zeros(0,0)
-    # smaEMV = np.concatenate((b,smaEMV0), axis=None)
     
-    for i in range(len(emv)): 
-        acum = acum + (emv[i]**2)
-    sumatoria = (acum/len(emv))
-    rms = sumatoria**0.5
-    rms = rms*filtro
+    # Start bandas discriminadoras
+    MAX = max(smaEMV1)    
+    MIN = min(smaEMV1)    
+    total = MAX - MIN
+    parte = total/2
+    margin = parte*judge
+    limitUP = MAX - margin
+    limitDN = MIN + margin
     
-    lineasup = createline( rms, len(emv)+1)
-    luneainf = createline(-rms, len(emv)+1)
+    lineup = createline( limitUP, len(emv)+1)
+    linedown = createline( limitDN, len(emv)+1)
+    #End Bandas
+    
     
     Timestampop
     x = np.asarray(Timestampop)
-    #graphicator(x, smaEMV, smaEMV, lineasup, luneainf  )  
     
-    if (rms >= smaEMV0[-1]) or (-rms <= smaEMV0[-1]) :
+    
+    if (limitUP >= smaEMV0[-1]) or (limitDN <= smaEMV0[-1]) :
         status = False
     else:
         status = True
@@ -187,6 +187,5 @@ def emv(Highprice,Lowprice,Volume, Timestampop, divisor = 10000, mediamovil = 14
     smaEMV.append(None)
     
     
-    #Testify[2] = status, [x, smaEMV, smaEMV, lineasup, luneainf ]
-    return status, [x, smaEMV, smaEMV, lineasup, luneainf ]
+    return status, [x, smaEMV, smaEMV, lineup, linedown ]
 
