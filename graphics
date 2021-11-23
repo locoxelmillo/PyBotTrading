@@ -1,0 +1,104 @@
+import matplotlib.pyplot as plt
+import matplotlib.dates as md
+import numpy as np
+import datetime as dt
+import time
+
+
+def graphicator(x, y, maq, mam, mas):
+    first = x[0]/1000
+    last = x[len(x)-1]/1000
+    n=len(x)
+    
+    fig = plt.figure(figsize = (15,7))
+    fig.tight_layout()
+    
+    timestamps = np.linspace(first,last,n)
+    dates=[dt.datetime.fromtimestamp(ts) for ts in timestamps]
+    
+    datenums=md.date2num(dates)
+    
+    plt.subplots_adjust(bottom=0.2)
+    plt.xticks( rotation=25 )
+    ax=plt.gca()
+    ax.xaxis_date()
+    ax.xaxis.set_major_formatter(md.DateFormatter('%H:%M'))
+    
+    plt.plot(datenums,maq, color='tab:red')
+    plt.plot(datenums,mam, color='tab:orange')
+    plt.plot(datenums,mas, color='tab:green')
+    plt.plot(datenums,y, color= 'tab:blue'     )
+    plt.show()   
+    
+    return  datenums
+
+
+def graphicator2(Testify, Timestampop):
+    
+    fig = plt.figure(figsize = (15,15))
+    fig.tight_layout()
+    colores = ['blue', 'green', 'red', 'cyan', 'magenta', 'blue', 'green', 'red', 'cyan', 'magenta', 'blue', 'green', 'red', 'cyan', 'magenta', 'blue', 'green', 'red', 'cyan', 'magenta', 'blue', 'green', 'red', 'cyan', 'magenta', 'blue', 'green', 'red', 'cyan', 'magenta']
+    
+    x = []
+    x = Timestampop
+    
+    first = x[0]/1000
+    last = x[len(x)-1]/1000
+    n=len(x)
+       
+    timestamps = np.linspace(first,last,n)
+    dates=[dt.datetime.fromtimestamp(ts) for ts in timestamps]
+    
+    datenums=md.date2num(dates)
+    
+    
+    for i in range(1, len(Testify)+1):
+        x = datenums
+        y1 = Testify[i-1][1][1]
+        y2 = Testify[i-1][1][2]
+        y3 = Testify[i-1][1][3]
+        y0 = Testify[i-1][1][4]
+        ax = plt.subplot(3,1,i)
+        
+        plt.xticks( rotation=25 )
+        ax=plt.gca()
+        ax.xaxis_date()
+        ax.xaxis.set_major_formatter(md.DateFormatter('%H:%M'))
+        
+        ax.plot(x,y1,color = colores[i])
+        ax.plot(x,y2,color = colores[i+1])
+        ax.plot(x,y3,color = colores[i+2])
+        ax.plot(x,y0,color = colores[i+3])
+        
+    plt.show()                 
+    print("Impreso a las: " + str(Timestampop[-1]))
+    
+    
+def onlygraphicator(x, sell, buy, price, uplimit, downlimit):
+    
+    
+    fig = plt.figure(figsize = (10,10))
+    fig.tight_layout()
+    
+    first = (x[0]/1000)
+    last = (x[len(x)-1]/1000)
+    n=len(x)
+       
+    timestamps = np.linspace(first,last,n)
+    dates=[dt.datetime.fromtimestamp(ts) for ts in timestamps]
+    datenums=md.date2num(dates)
+    
+    plt.subplots_adjust(bottom=0.2)
+    plt.xticks( rotation=25 )
+    ax=plt.gca()
+    ax.xaxis_date()
+    ax.xaxis.set_major_formatter(md.DateFormatter('%H:%M'))
+    
+
+    plt.plot(datenums, sell, 'rv' )
+    plt.plot(datenums, buy, 'g^' )
+    plt.plot(datenums, price, 'y')
+    plt.plot(datenums, uplimit,  'r')
+    plt.plot(datenums, downlimit,  'g')
+    plt.show()   
+    
