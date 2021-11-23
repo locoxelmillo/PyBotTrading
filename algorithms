@@ -17,11 +17,19 @@ def sma(a, n=3) :
     b = np.repeat(None, (n - 1))
     return np.concatenate((b,ret[n - 1:] / n))
 
+def smawonone(a, n=3) :
+    """Calcula la media movil
+    Recibe una lista a y n periodos
+    Devuelve el vector incompleto con la misma cantidad miembros"""
+    ret = np.cumsum(a, dtype=float)
+    ret[n:] = ret[n:] - ret[:-n]
+    return ret[n - 1:] / n
+
 
 def ema(s, n):
     """Calcula la media movil exponencial
-    Recibe una lista a y n periodos
-    Devuelve el vector incompleto con la misma cantidad miembros"""
+    Recibe una lista s y n periodos
+    Devuelve el vector completo con la misma cantidad miembros de la lista de entrada"""
     ema = []
     j = 1
     #get n sma first and calculate the next n period ema
@@ -43,7 +51,7 @@ def ema(s, n):
 def emawonone(s, n):
     """Calcula la media movil exponencial
     Recibe una lista a y n periodos
-    Devuelve el vector completo con la misma cantidad miembros"""
+    Devuelve el vector incompleto con la misma cantidad miembros"""
     ema = []
     j = 1
     #get n sma first and calculate the next n period ema
