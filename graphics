@@ -102,3 +102,36 @@ def onlygraphicator(x, sell, buy, price, uplimit, downlimit):
     plt.plot(datenums, downlimit,  'g')
     plt.show()   
     
+def graphicator3(Testify, Timestampop):
+    
+    fig = plt.figure(figsize = (20,20))
+    fig.tight_layout()
+    colores = ['blue', 'green', 'red', 'cyan', 'magenta', 'blue', 'green', 'red', 'cyan', 'magenta', 'blue', 'green', 'red', 'cyan', 'magenta', 'blue', 'green', 'red', 'cyan', 'magenta', 'blue', 'green', 'red', 'cyan', 'magenta', 'blue', 'green', 'red', 'cyan', 'magenta']
+    
+    x = []
+    x = Timestampop
+    
+    first = x[0]/1000
+    last = x[len(x)-1]/1000
+    n=len(x)
+       
+    timestamps = np.linspace(first,last,n)
+    dates=[dt.datetime.fromtimestamp(ts) for ts in timestamps]
+    
+    datenums=md.date2num(dates)
+    
+    
+    for i in range(1, len(Testify)+1):
+        x = datenums
+        ax = plt.subplot(3,1,i)
+        
+        plt.xticks( rotation=25 )
+        ax=plt.gca()
+        ax.xaxis_date()
+        ax.xaxis.set_major_formatter(md.DateFormatter('%H:%M'))
+        
+        for j in range (1, int(len(Testify[i-1])+1)):
+            ax.plot(x,Testify[i-1][j-1],color = colores[j-1])
+        
+    plt.show()                 
+    print("Impreso a las: " + str(Timestampop[-1]))
