@@ -197,3 +197,13 @@ def emv(Highprice,Lowprice,Volume, Timestampop, divider = 10000, movingaverage =
     
     return status, [x, smaEMV, smaEMV, lineup, linedown ]
 
+def quickness(y, rango = 10):
+    
+    z = []
+    for K in range(rango):   
+        z = np.append(z, K)
+    x = z
+
+    regresion_lineal = LinearRegression() 
+    regresion_lineal.fit(x.reshape(-1,1), y) 
+    return regresion_lineal.coef_[0]
