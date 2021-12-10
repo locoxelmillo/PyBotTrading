@@ -8,119 +8,114 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
-def sma(a, n=3, wonone = True) :
-    """Calcula la media movil
-    Recibe una lista a y n periodos
-    Devuelve el vector incompleto con la misma cantidad miembros"""
-    ret = np.cumsum(a, dtype=float)
-    ret[n:] = ret[n:] - ret[:-n]
+def sma(source, lenght=9, wonone = True) :
+    """Finds the moving average of a list of values. Enter: 
+        source = data source, openprice, closeprice, etc. should be a list with Float variables
+        lenght = Length
+        Wonone = True if you want the vector incomplete, False if you want the vector complete with empty places."""
+    ret = np.cumsum(source, dtype=float)
+    ret[lenght:] = ret[lenght:] - ret[:-lenght]
     if wonone == True: 
-        b = np.repeat(None, (n - 1))
-        c = np.concatenate((b,ret[n - 1:] / n))
+        b = np.repeat(None, (lenght - 1))
+        c = np.concatenate((b,ret[lenght - 1:] / lenght))
     else : 
-        c = ret[n - 1:] / n
+        c = ret[lenght - 1:] / lenght
     return c
 
 
 
-def ema(s, n=3, wonone = True) :
-    """Calcula la media movil exponencial
-    Recibe una lista s y n periodos
-    Devuelve el vector completo con la misma cantidad miembros de la lista de entrada"""
+def ema(source, lenght=9, wonone = True) :
+    """Finds the exponential moving average of a list of values. Enter: 
+        source = data source, openprice, closeprice, etc. should be a list with Float variables
+        lenght = Length
+        Wonone = True if you want the vector incomplete, False if you want the vector complete with empty places."""
     ema = []
     j = 1
     #get n sma first and calculate the next n period ema
-    sma = sum(s[:n]) / n
-    multiplier = 2 / float(1 + n)
+    sma = sum(source[:lenght]) / lenght
+    multiplier = 2 / float(1 + lenght)
     ema.append(sma)
-    #EMA(current) = ( (Price(current) - EMA(prev) ) x Multiplier) + EMA(prev)
-    ema.append(( (s[n] - sma) * multiplier) + sma)
+    ema.append(( (source[lenght] - sma) * multiplier) + sma)
     #now calculate the rest of the values
-    for i in s[n+1:]:
+    for i in source[lenght+1:]:
         tmp = ( (i - ema[j]) * multiplier) + ema[j]
         j = j + 1
         ema.append(tmp)
     b = []
     if wonone == True:
-        b = np.repeat(None, (n-1))
+        b = np.repeat(None, (lenght-1))
     return np.concatenate((b,ema), axis=None)
-    
-    
-def exponentialmovingaverage(price, time, amq, amm, ams):
-    lastvalue = len(price) - 1
-    AMquick = ema(price, amq)
-    AMmedium = ema(price, amm)
-    AMslow = ema(price, ams)
+
+
+
+def exponentialmovingaverage(source, amq = 9, amm = 18, ams = 42):
+    """Find 3 exponential moving averages. Returns complete vectors. Enter the 3 lengths """
+    lastvalue = len(source) - 1
+    AMquick = ema(source, amq)
+    AMmedium = ema(source, amm)
+    AMslow = ema(source, ams)
     x = np.asarray(time)
-    graphicator(x, price, AMslow, AMmedium, AMquick)  
+    #graphicator(x, source, AMslow, AMmedium, AMquick)  
     
     if (AMquick[lastvalue] > AMslow[lastvalue]):
         status = True
     else:
         status = False
-    return status
+    return list(source), AMquick , AMmedium, AMslow
         
 
-def macd(price, time):
-    
-    #Creacion de las variables iniciales
-    lastvalue = len(price) - 1
-    PMEs = ema( price, 12)
-    PMEq = ema( price, 26)
+def macd(source, emaquick =26, emaslow =12, emasignal =9):
+    """Find the MACD of a source. 
+        Source: Open Price, Close Price, etc. This variable must be a list.
+        emaquick : the fast moving average
+        emaslow  : the slow moving average
+        emasignal: The moving average of the signal
+        Return: source, MACD, signal, Histograme"""
+    #inital variables
+    lv = len(source) 
     MACD0 = []
     MACD1 = []
     Histograme = []
-    zero = np.zeros(len(price))
-    #Calculamos el MACD
-    for i in range(len(price)):
-        if i < 26:
+    
+    #Calculate MACD
+    PMEs = ema( source, emaslow)
+    PMEq = ema( source, emaquick)
+    for i in range(lv):
+        if i < emaquick:
             MACD0.append(None)
-        elif i >= 26:
+        elif i >= emaquick:
             result = PMEs[i] - PMEq[i] 
             MACD1.append(result)
-    #Calculamos la signal     
-    signal0 = ema(MACD1, 9)
-    #Ordenamos MACD y Signal
+    #Calculate signal     
+    signal0 = ema(MACD1, emasignal)
+
+    #complete MACD y Signal
     signal = np.concatenate((MACD0,signal0), axis=None)
     MACD = np.concatenate((MACD0,MACD1), axis=None)
     #Calculamos el histograma
-    for i in range(len(price)):
+    for i in range(lv):
         if (MACD[i]== None or signal[i]== None):
             Histograme.append(None)
         else:
             result = MACD[i] - signal[i] 
             Histograme.append(result)
 
-    x = np.asarray(time)
-    graphicator(x, MACD, signal, Histograme, zero)  
-    if (MACD[lastvalue] > signal[lastvalue]):
-        status = True
-    else:
-        status = False
-    return status
-
-
-
-
-def emv(Highprice,Lowprice,Volume, Timestampop, divider = 10000, movingaverage = 14, judge = 0.4 ):
-    """Ease of movement (EMV) is an indicator used in technical analysis to relate an asset's 
-    price change to its volume. Ease of Movement was developed by Richard W. Arms, Jr. and 
-    highlights the relationship between volume and price changes and is particularly useful 
-    for assessing the strength of a trend. High positive values indicate the price is increasing 
-    on low volume: strong negative values indicate the price is dropping on low volume. 
-    The moving average of the indicator can be added to act as a trigger line, 
-    which is similar to other indicators like the MACD.
-    Input data:
-        Highprice
-        Lowprice
-        Volume
-        Timestampop
-        divider
-        movingaverage
-        judge: judge manual
+    return list(source), MACD, signal, Histograme
     
-    """
- 
+    
+    
+    
+def emv(Testing, divider = 10000, movingaverage = 14, judge = 0.4 ):
+    """Ease of movement (EMV) 
+        Input data:
+            dataframe
+            divider
+            movingaverage
+            judge: judge manual """
+
+    Highprice = list(Testing['high'])
+    Lowprice  = list(Testing['low'])
+    Volume    = list(Testing['volume'])
     
     size = len(Highprice)
     distance = []
@@ -141,7 +136,7 @@ def emv(Highprice,Lowprice,Volume, Timestampop, divider = 10000, movingaverage =
             return emv.append(0)
     emv.pop(0)
     smaEMV0 = sma(emv, movingaverage)
-    smaEMV1 = smawonone(emv, movingaverage)
+    smaEMV1 = sma(emv, movingaverage, False)
     
     
     # Start bandas discriminadoras
@@ -156,23 +151,13 @@ def emv(Highprice,Lowprice,Volume, Timestampop, divider = 10000, movingaverage =
     lineup = createline( limitUP, len(emv)+1)
     linedown = createline( limitDN, len(emv)+1)
     #End Bandas
-    
-    
-    Timestampop
-    x = np.asarray(Timestampop)
-    
-    
-    if (limitUP >= smaEMV0[-1]) or (limitDN <= smaEMV0[-1]) :
-        status = False
-    else:
-        status = True
         
     
     smaEMV = smaEMV0.tolist()
     smaEMV.append(None)
     
+    return smaEMV, lineup, linedown
     
-    return status, [x, smaEMV, smaEMV, lineup, linedown ]
 
 def quickness(y, rango = 10):
     
