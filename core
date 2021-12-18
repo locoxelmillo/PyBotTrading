@@ -1,0 +1,56 @@
+from binance.client import Client
+from binance.enums import *
+import urllib3
+
+def analisis(valores, diferencial , estado, filtro):
+    
+    conv = 0
+    Timestampop = []   # 0
+    Openprice = []     # 1 
+    Highprice = []     # 2
+    Lowprice = []      # 3
+    Closeprice = []    # 4
+    Volume = []        # 5
+    datetrade = []     # Date from timestamp
+    action = []
+    state = []
+    Testify = [None, None, None]
+    
+    for conv in range(len(valores)):     
+        Timestampop.append(valores[conv][0])
+        Openprice.append(float(valores[conv][1]))
+        Highprice.append(float(valores[conv][2]))
+        Lowprice.append(float(valores[conv][3]))
+        Closeprice.append(float(valores[conv][4]))
+        Volume.append(float(valores[conv][5]))
+    
+    
+    Testify[0] = exponentialmovingaverage(Openprice, Timestampop, 9, 18, 40)
+    Testify[1] = macd(Openprice, Timestampop)
+    Testify[2] = emv(Highprice,Lowprice,Volume, Timestampop, 10000, 14) 
+    
+    
+
+    
+    if   Testify[0][0] == True  and Testify[1][0] == True  and Testify[2][0] == False and estado == False  and filtro == True :
+        abuy  = Openprice[-1]
+        asell = None
+        print('compra')
+        estado = True
+        graphicator2(Testify, Timestampop)
+
+    elif Testify[0][0] == False and Testify[1][0] == False and Testify[2][0] == False and estado == True :
+        asell = Openprice[-1]
+        abuy  = None
+        print('venta')
+        estado = False
+        graphicator2(Testify, Timestampop)
+        
+    else: 
+        abuy  = None
+        asell = None
+        
+        
+        
+    # retunr [Vendio?, compro?, ultimo precio, retorno de indicadores, ultimo tiempo, ventor de precios, estado anterior]
+    return asell, abuy , Openprice[-1], Testify, Timestampop[-1], Timestampop, Openprice, estado
