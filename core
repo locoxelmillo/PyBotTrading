@@ -54,3 +54,35 @@ def analisis(valores, diferencial , estado, filtro):
         
     # retunr [Vendio?, compro?, ultimo precio, retorno de indicadores, ultimo tiempo, ventor de precios, estado anterior]
     return asell, abuy , Openprice[-1], Testify, Timestampop[-1], Timestampop, Openprice, estado
+    
+    
+    
+    def truncate(numero, cifras):
+    posiciones = pow(10.0, cifras)
+    return math.trunc(posiciones * numero) / posiciones
+
+def createline(value, rango):
+    vector = []
+    i = 0
+    for i in range(rango): 
+        vector.append(value)
+    return vector 
+
+
+def write(data, name):
+    #ESCRIBIR        
+    fic = open(name, "w")
+    print(data, file=fic)
+    fic.close()
+    return 0
+
+def read(name):
+    #LEER
+    fic = open(name, "r")
+    lines1 = fic.readlines()
+    lines = lines1[0]
+    precio = float(lines[0:7])
+    #print(precio)
+    fic.close()
+    return precio
+
