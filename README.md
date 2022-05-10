@@ -1,4 +1,4 @@
-# LibrariesForTrading
+# Python Trading bot
 
 This post is about the cryptocurrency merch data study. In this section I am going to show you my libraries for technical and functional analysis.
 We are going to use python and libraries, and APIs from binance and other partners.
