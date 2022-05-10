@@ -62,6 +62,21 @@ def dftolistget(date = 'close'):
 
 
 
+def merchs(merch):
+    client = Client( api_key = Keys.Pkey , api_secret = Keys.Skey )
+    prices = client.get_all_tickers()
+    pricesdf = df(prices)
+    pricesdf.columns = ['symbol','prices']
+    
+    sym = pricesdf.symbol
+
+    my_list = list(sym)
+    
+    value = merch in my_list
+       
+    return  value
+
+
 
 
 def interval_to_milliseconds(interval):
